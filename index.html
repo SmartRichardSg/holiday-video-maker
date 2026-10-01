@@ -5,262 +5,344 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Holiday Video Maker</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#222}
-.wrap{max-width:720px;margin:auto;padding:20px 16px 40px}.card{background:white;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 12px #0000000d}
-h1{font-size:28px;margin:4px 0 6px}h2{font-size:18px;margin:0 0 12px}.sub{color:#666;margin:0 0 18px}
-label{display:block;font-weight:600;margin:12px 0 6px}input,button{font:inherit}input[type=text],input[type=date],input[type=number],textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font-size:16px}
-input[type=file]{width:100%;padding:12px 0}button{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;background:#222;color:white}
-button.secondary{background:#e9e9ed;color:#222}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
-.preview{background:#111;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
-.preview img{width:100%;height:100%;object-fit:cover}.empty{color:#aaa;text-align:center;padding:20px}
-.controls{display:flex;gap:10px;align-items:center;margin-top:12px}.controls button{flex:1}
-#count{font-weight:700}.thumbs{display:flex;gap:8px;overflow-x:auto;padding-top:10px}.thumbs img{width:70px;height:55px;object-fit:cover;border-radius:8px;opacity:.65}.thumbs img.active{opacity:1;outline:3px solid #222}
-.note{font-size:13px;color:#666;line-height:1.4}
-</style>
-
-<style>
-#textOverlay.opening-style{
-  background:linear-gradient(180deg,#0008,#000b);
-  padding:18px 16px;
-  border-radius:16px;
-  font-size:clamp(28px,8vw,52px);
-}
-#textOverlay.opening-style::first-line{
-  font-weight:800;
-}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f3f6;color:#1f1f22;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px 14px 44px}
+.card{background:#fff;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 14px #00000010}
+h1{font-size:28px;margin:3px 0 6px}h2{font-size:19px;margin:0 0 12px}
+.sub,.note{color:#666;line-height:1.45}.note{font-size:13px}
+label{display:block;font-weight:700;margin:11px 0 6px}
+input[type=text],input[type=date],textarea{width:100%;padding:13px;border:1px solid #d8d8dd;border-radius:12px;font-size:16px;background:#fff}
+textarea{min-height:76px;resize:vertical}
+button{font:inherit;border:0;border-radius:14px;padding:13px 15px;font-weight:750;background:#222;color:#fff}
+button.secondary{background:#e9e9ee;color:#222}
+button.green{background:#1d6f42}
+button.danger{background:#b3261e}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:125px}
+input[type=file]{width:100%;padding:10px 0}
+#photoCount{font-weight:750;margin:10px 0}
+#thumbs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px}
+.thumb{flex:0 0 auto;width:92px;position:relative}.thumb img{width:92px;height:68px;object-fit:cover;border-radius:10px;display:block}
+.thumb.active img{outline:3px solid #222}.thumb span{display:block;text-align:center;font-size:12px;margin-top:3px;color:#666}
+.photoTools{display:flex;gap:5px;margin-top:5px}.photoTools button{padding:7px 8px;font-size:12px;flex:1}
+.preview{background:#111;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+#canvas{width:100%;height:100%;display:block}.empty{color:#aaa;text-align:center;padding:20px}
+.controls{display:flex;gap:9px;margin-top:10px}.controls button{flex:1}
+input[type=range]{width:100%}
+.status{padding:10px;border-radius:12px;background:#f0f0f3;margin-top:10px;font-size:13px}
+#captionList{display:grid;gap:10px}.captionRow{padding:10px;background:#f7f7f9;border-radius:13px}.captionRow small{color:#666;font-weight:700}
+.bigTitle{font-family:Georgia,"Times New Roman",serif}
+.download{display:block;text-align:center;text-decoration:none;border-radius:14px;padding:14px;background:#1d6f42;color:#fff;font-weight:800;margin-top:10px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>🎬 Holiday Video Maker</h1>
-<p class="sub">A simple way to turn your holiday photos into a slideshow.</p>
+<p class="sub">A simple phone-first holiday slideshow maker. Add photos one at a time, add captions, choose music, preview, then create the video.</p>
 
 <div class="card">
 <h2>1. Holiday details</h2>
-<label>Title</label><input id="title" type="text" placeholder="e.g. Japan Autumn 2026">
+<label>Title</label><input id="title" type="text" placeholder="e.g. Japan Holiday 2026">
 <label>Date</label><input id="date" type="date">
-<label>Location</label><input id="location" type="text" placeholder="e.g. Kyoto, Japan">
+<label>Location</label><input id="location" type="text" placeholder="e.g. Shirakawa-go, Japan">
 </div>
 
 <div class="card">
 <h2>2. Add photos</h2>
-<input id="photos" type="file" accept="image/*" multiple>
-<p class="note">Select all your holiday photos in one go. 30–50 photos is a good working range. There is no 9-photo limit in the app.</p>
-<p id="count">No photos selected</p><p id="photoStatus" class="note"></p>
-<div id="thumbs" class="thumbs"></div>
+<input id="photoPicker" type="file" accept="image/*">
+<p class="note">Tap Choose File, select one photo, then tap it again to add the next photo. This avoids the iPhone 9-photo picker problem. There is no photo limit in the app.</p>
+<div id="photoCount">0 photos</div>
+<div id="thumbs"></div>
+<div class="status" id="photoStatus">Start by adding a photo.</div>
 </div>
 
 <div class="card">
-<h2>3. Add music (optional)</h2>
-<a href="https://suno.com/create" target="_blank" rel="noopener"
-style="display:block;text-align:center;text-decoration:none;background:#222;color:white;border-radius:14px;padding:14px 16px;font-weight:700;margin-bottom:12px;">
-🎵 Create Music with Suno
-</a>
-<p class="note">Tap the button above to open Suno, create your holiday song, download it to your iPhone, then return here.</p>
-<input id="music" type="file">
-<p id="musicName" class="note">Then tap Choose File and select your downloaded Suno song.</p>
+<h2>3. Edit titles & captions</h2>
+<label>Opening title — large elegant font</label>
+<input id="openingTitle" type="text" placeholder="e.g. Gassho-zukuri Minkaen">
+<label>Opening information</label>
+<textarea id="openingInfo" placeholder="e.g. Shirakawa-go, Japan&#10;June 2026"></textarea>
+<label>Caption for each photo</label>
+<div id="captionList"><p class="note">Add photos first.</p></div>
+<label>Closing message</label>
+<textarea id="closingMessage" placeholder="e.g. A wonderful day to remember."></textarea>
 </div>
-
 
 <div class="card">
-<h2>4. ✏️ Edit Video</h2>
-
-<label for="openingTitle"><strong>Opening title</strong></label>
-<input id="openingTitle" type="text" placeholder="e.g. Our Japan Adventure">
-
-<label for="openingInfo"><strong>Opening information</strong></label>
-<textarea id="openingInfo" rows="3" placeholder="e.g. June 2026&#10;Kamikochi, Japan"></textarea>
-
-<label for="closingMessage"><strong>Closing message (optional)</strong></label>
-<input id="closingMessage" type="text" placeholder="e.g. Wonderful memories together ❤️">
-
-<div style="margin-top:14px;">
-<strong>Photo captions</strong>
-<p class="note">Add a short caption to any photo. Leave blank if you don't want one. Tap Save Edits, then Preview to check the result.</p>
-<div id="captionList"></div>
+<h2>4. Music</h2>
+<button id="suno" type="button">🎵 Create Music with Suno</button>
+<p class="note">Create/download your song in Suno, return here, then choose the downloaded audio file.</p>
+<input id="musicPicker" type="file" accept="audio/*">
+<div id="musicName" class="note">No music selected.</div>
 </div>
 
-<button id="saveEdits" type="button">💾 Save Edits</button>
-<p id="editStatus" class="note"></p>
-</div>
 <div class="card">
 <h2>5. Preview</h2>
 <div class="preview">
-<img id="previewImg" hidden>
-<div id="empty" class="empty">Add some photos to start your preview.</div>
-<div id="textOverlay" style="position:absolute;left:6%;right:6%;bottom:6%;padding:10px 12px;border-radius:12px;background:#0009;color:white;text-align:center;font-weight:700;display:none;white-space:pre-line;"></div>
+<canvas id="canvas" width="1280" height="720"></canvas>
+<div id="empty" class="empty">Add photos to start the preview.</div>
 </div>
 <div class="controls">
 <button id="play">▶ Play</button><button id="pause" class="secondary">⏸ Pause</button>
 </div>
-<label>Seconds per photo: <span id="durationValue">3</span></label>
-<input id="duration" type="range" min="1" max="8" value="3">
-<p id="slideInfo" class="note"></p>
+<label>Seconds per photo: <span id="secondsValue">3</span></label>
+<input id="seconds" type="range" min="1" max="8" value="3">
+<p id="slideInfo" class="note">No photos</p>
 </div>
 
 <div class="card">
-<h2>6. Your holiday</h2>
-<p id="summary" class="note">Add photos above. The slideshow stays on your device.</p>
-<button id="new" class="secondary">Start New Holiday</button>
+<h2>6. Create video</h2>
+<p class="note">The app records the same preview you see above. Your music is included if selected.</p>
+<button id="createVideo" class="green" type="button">🎬 CREATE VIDEO</button>
+<div id="videoStatus" class="status">Ready.</div>
+<div id="downloadArea"></div>
+</div>
+
+<div class="card">
+<h2>7. Start another holiday</h2>
+<button id="newHoliday" class="secondary">Start New Holiday</button>
 </div>
 </div>
 
-<audio id="audio" loop></audio>
 <script>
-const photosEl=document.getElementById('photos'),musicEl=document.getElementById('music');
-const img=document.getElementById('previewImg'),empty=document.getElementById('empty');
-const thumbs=document.getElementById('thumbs'),count=document.getElementById('count');
-const play=document.getElementById('play'),pause=document.getElementById('pause');
-const duration=document.getElementById('duration'),durationValue=document.getElementById('durationValue');
-const slideInfo=document.getElementById('slideInfo'),audio=document.getElementById('audio');
-const textOverlay=document.getElementById('textOverlay');
-const openingTitle=document.getElementById('openingTitle');
-const openingInfo=document.getElementById('openingInfo');
-const closingMessage=document.getElementById('closingMessage');
-const captionList=document.getElementById('captionList');
-const saveEdits=document.getElementById('saveEdits');
-const editStatus=document.getElementById('editStatus');
+const picker=document.getElementById('photoPicker');
+const thumbs=document.getElementById('thumbs');
+const photoCount=document.getElementById('photoCount');
+const photoStatus=document.getElementById('photoStatus');
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const empty=document.getElementById('empty');
+const playBtn=document.getElementById('play');
+const pauseBtn=document.getElementById('pause');
+const seconds=document.getElementById('seconds');
+const secondsValue=document.getElementById('secondsValue');
+const slideInfo=document.getElementById('slideInfo');
+const musicPicker=document.getElementById('musicPicker');
+const musicName=document.getElementById('musicName');
+const audio=new Audio();
+audio.preload='auto';
 
-let items=[],index=0,timer=null,playing=false;
-let edits={openingTitle:'',openingInfo:'',closingMessage:'',captions:[]};
+let photos=[];
+let current=0;
+let playing=false;
+let playTimer=null;
+let musicUrl=null;
+let audioContext=null;
+let audioSource=null;
+let audioDestination=null;
+
+const edits={openingTitle:'',openingInfo:'',closingMessage:'',captions:[]};
+
+function escapeText(s){return s||'';}
+
+function drawCover(img){
+  const cw=canvas.width,ch=canvas.height;
+  const r=Math.max(cw/img.naturalWidth,ch/img.naturalHeight);
+  const w=img.naturalWidth*r,h=img.naturalHeight*r;
+  const x=(cw-w)/2,y=(ch-h)/2;
+  ctx.drawImage(img,x,y,w,h);
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+function wrapText(text,font,maxWidth){
+  ctx.font=font;
+  const words=text.split(/\s+/);let lines=[],line='';
+  for(const word of words){
+    const test=line?line+' '+word:word;
+    if(ctx.measureText(test).width<=maxWidth) line=test;
+    else {if(line)lines.push(line);line=word;}
+  }
+  if(line)lines.push(line);
+  return lines;
+}
+
+function drawOverlay(){
+  const i=current;
+  let caption=edits.captions[i]||'';
+  if(i===0 && (edits.openingTitle||edits.openingInfo)){
+    ctx.fillStyle='rgba(0,0,0,.58)';roundRect(70,55,1140,190,28);ctx.fill();
+    ctx.textAlign='center';ctx.fillStyle='white';
+    if(edits.openingTitle){
+      ctx.font='bold 62px Georgia, serif';
+      const lines=wrapText(edits.openingTitle,ctx.font,1060);
+      lines.slice(0,2).forEach((l,n)=>ctx.fillText(l,640,125+n*68));
+    }
+    if(edits.openingInfo){
+      ctx.font='28px -apple-system, sans-serif';
+      const lines=edits.openingInfo.split(/\n/).slice(0,2);
+      lines.forEach((l,n)=>ctx.fillText(l,640,202+n*34));
+    }
+  }
+  if(caption){
+    ctx.fillStyle='rgba(0,0,0,.62)';roundRect(45,615,1190,65,18);ctx.fill();
+    ctx.textAlign='center';ctx.fillStyle='white';ctx.font='bold 27px -apple-system, sans-serif';
+    const lines=wrapText(caption,ctx.font,1120).slice(0,2);
+    lines.forEach((l,n)=>ctx.fillText(l,640,652+n*30));
+  }
+  if(i===photos.length-1 && edits.closingMessage){
+    ctx.fillStyle='rgba(0,0,0,.66)';roundRect(100,500,1080,130,24);ctx.fill();
+    ctx.textAlign='center';ctx.fillStyle='white';ctx.font='bold 34px Georgia, serif';
+    const lines=wrapText(edits.closingMessage,ctx.font,980).slice(0,3);
+    lines.forEach((l,n)=>ctx.fillText(l,640,548+n*40));
+  }
+  ctx.textAlign='left';
+}
 
 function render(){
   thumbs.innerHTML='';
-  items.forEach((it,i)=>{
-    const t=document.createElement('img');
-    t.src=it.url;
-    t.className=i===index?'active':'';
-    t.onclick=()=>{index=i;show();};
-    thumbs.appendChild(t);
+  photos.forEach((p,i)=>{
+    const wrap=document.createElement('div');wrap.className='thumb'+(i===current?' active':'');
+    const im=document.createElement('img');im.src=p.url;im.alt='';
+    im.onclick=()=>{current=i;show();};
+    const n=document.createElement('span');n.textContent='#'+(i+1);
+    const tools=document.createElement('div');tools.className='photoTools';
+    const up=document.createElement('button');up.textContent='↑';up.className='secondary';up.onclick=()=>move(i,-1);
+    const down=document.createElement('button');down.textContent='↓';down.className='secondary';down.onclick=()=>move(i,1);
+    const del=document.createElement('button');del.textContent='×';del.className='danger';del.onclick=()=>removePhoto(i);
+    tools.append(up,down,del);wrap.append(im,n,tools);thumbs.appendChild(wrap);
   });
-  count.textContent=items.length?`${items.length} photo${items.length>1?'s':''} selected`:'No photos selected';
-  renderCaptionList();
+  photoCount.textContent=photos.length+' photo'+(photos.length===1?'':'s');
+  empty.classList.toggle('hidden',photos.length>0);
+  renderCaptions();
   show();
 }
-
+function renderCaptions(){
+  const box=document.getElementById('captionList');box.innerHTML='';
+  if(!photos.length){box.innerHTML='<p class="note">Add photos first.</p>';return;}
+  photos.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='captionRow';
+    const small=document.createElement('small');small.textContent='PHOTO '+(i+1);
+    const input=document.createElement('input');input.type='text';input.placeholder='Optional caption';input.value=edits.captions[i]||'';
+    input.oninput=()=>{edits.captions[i]=input.value;show();};
+    row.append(small,input);box.appendChild(row);
+  });
+}
 function show(){
-  if(!items.length){
-    img.hidden=true; empty.hidden=false; slideInfo.textContent=''; textOverlay.style.display='none'; return;
-  }
-  img.hidden=false; empty.hidden=true; img.src=items[index].url;
-  [...thumbs.children].forEach((x,i)=>x.className=i===index?'active':'');
-  slideInfo.textContent=`Photo ${index+1} of ${items.length}`;
-
-  let text='';
-  if(index===0 && (edits.openingTitle || edits.openingInfo)){
-    text=(edits.openingTitle ? edits.openingTitle : '') +
-      (edits.openingInfo ? '\n' + edits.openingInfo : '');
-    textOverlay.classList.add('opening-style');
-  }
-  if(!(index===0 && (edits.openingTitle || edits.openingInfo))) textOverlay.classList.remove('opening-style');
-  if(edits.captions[index]) text=edits.captions[index];
-  if(index===items.length-1 && edits.closingMessage){
-    text=(text ? text+'\n\n' : '') + edits.closingMessage;
-  }
-  textOverlay.textContent=text;
-  textOverlay.style.display=text?'block':'none';
+  if(!photos.length){slideInfo.textContent='No photos';return;}
+  const im=new Image();im.onload=()=>{
+    ctx.clearRect(0,0,1280,720);drawCover(im);drawOverlay();
+    slideInfo.textContent='Photo '+(current+1)+' of '+photos.length;
+    [...thumbs.children].forEach((x,i)=>x.classList.toggle('active',i===current));
+  };im.src=photos[current].url;
 }
-
-function next(){if(!items.length)return;index=(index+1)%items.length;show()}
-function start(){
-  if(!items.length)return;
-  playing=true;play.textContent='⏸ Playing';
-  clearInterval(timer);
-  timer=setInterval(next,+duration.value*1000);
-  audio.play().catch(()=>{});
+function move(i,d){
+  const j=i+d;if(j<0||j>=photos.length)return;
+  [photos[i],photos[j]]=[photos[j],photos[i]];
+  [edits.captions[i],edits.captions[j]]=[edits.captions[j]||'',edits.captions[i]||''];
+  current=j;render();
 }
-function stop(){playing=false;clearInterval(timer);timer=null;play.textContent='▶ Play';audio.pause()}
-
-function renderCaptionList(){
-  captionList.innerHTML='';
-  if(!items.length){
-    captionList.innerHTML='<p class="note">Add photos above first.</p>';
-    return;
-  }
-  items.forEach((photo,i)=>{
-    const wrap=document.createElement('div');
-    wrap.style.marginBottom='10px';
-    const label=document.createElement('label');
-    label.textContent='Photo '+(i+1);
-    const input=document.createElement('input');
-    input.type='text';
-    input.className='photo-caption';
-    input.placeholder='Caption for photo '+(i+1);
-    input.value=edits.captions[i]||'';
-    input.dataset.index=i;
-    input.oninput=()=>{
-      edits.captions[i]=input.value;
-      show();
-    };
-    wrap.appendChild(label);
-    wrap.appendChild(input);
-    captionList.appendChild(wrap);
-  });
+function removePhoto(i){
+  URL.revokeObjectURL(photos[i].url);photos.splice(i,1);edits.captions.splice(i,1);
+  if(current>=photos.length)current=Math.max(0,photos.length-1);render();
 }
-
-photosEl.onchange=()=>{
-  const newFiles=[...photosEl.files];
-  const photoStatus=document.getElementById('photoStatus');
-  if(photoStatus) photoStatus.textContent='Loading '+newFiles.length+' selected photo'+(newFiles.length===1?'':'s')+'…';
-  items.forEach(it=>URL.revokeObjectURL(it.url));
-  items=[];
-  newFiles.forEach(f=>items.push({name:f.name,size:f.size,url:URL.createObjectURL(f)}));
-  photosEl.value='';
-  if(index>=items.length) index=0;
+picker.onchange=()=>{
+  const f=picker.files[0];
+  picker.value='';
+  if(!f)return;
+  photos.push({name:f.name,url:URL.createObjectURL(f)});
+  edits.captions.push('');
+  current=photos.length-1;
+  photoStatus.textContent='Added '+photos.length+' photo'+(photos.length===1?'':'s')+'. Keep tapping Choose File to add more.';
   render();
-  updateSummary();
-  if(photoStatus) photoStatus.textContent=items.length+' photos loaded.';
+};
+document.getElementById('openingTitle').oninput=e=>{edits.openingTitle=e.target.value;show();};
+document.getElementById('openingInfo').oninput=e=>{edits.openingInfo=e.target.value;show();};
+document.getElementById('closingMessage').oninput=e=>{edits.closingMessage=e.target.value;show();};
+seconds.oninput=()=>{secondsValue.textContent=seconds.value;if(playing)startPreview();};
+
+function nextFrame(){if(!photos.length)return;current=(current+1)%photos.length;show();}
+function startPreview(){
+  if(!photos.length)return;
+  clearInterval(playTimer);playing=true;playBtn.textContent='⏸ Playing';
+  playTimer=setInterval(nextFrame,+seconds.value*1000);
+  if(audio.src) audio.play().catch(()=>{});
+}
+function stopPreview(){clearInterval(playTimer);playTimer=null;playing=false;playBtn.textContent='▶ Play';audio.pause();}
+playBtn.onclick=()=>playing?stopPreview():startPreview();
+pauseBtn.onclick=stopPreview;
+
+document.getElementById('suno').onclick=()=>window.open('https://suno.com/create','_blank');
+musicPicker.onchange=()=>{
+  const f=musicPicker.files[0];if(!f)return;
+  if(musicUrl)URL.revokeObjectURL(musicUrl);
+  musicUrl=URL.createObjectURL(f);audio.src=musicUrl;audio.loop=true;
+  musicName.textContent='Music selected: '+f.name;
 };
 
-musicEl.onchange=()=>{
-  const f=musicEl.files[0];
-  if(f){
-    audio.src=URL.createObjectURL(f);
-    document.getElementById('musicName').textContent='Music selected: '+f.name;
-  }
-};
+async function makeVideo(){
+  const status=document.getElementById('videoStatus'),area=document.getElementById('downloadArea');
+  area.innerHTML='';
+  if(!photos.length){status.textContent='Please add photos first.';return;}
+  stopPreview();
+  document.getElementById('createVideo').disabled=true;
+  status.textContent='Preparing video…';
 
-play.onclick=()=>playing?stop():start();
-pause.onclick=stop;
-duration.oninput=()=>{
-  durationValue.textContent=duration.value;
-  if(playing)start();
-};
+  const stream=canvas.captureStream(30);
+  let recorder, mime='';
+  const types=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'];
+  for(const t of types){if(window.MediaRecorder && MediaRecorder.isTypeSupported(t)){mime=t;break;}}
+  if(!mime){status.textContent='This iPhone browser cannot create a video file directly. The preview still works.';document.getElementById('createVideo').disabled=false;return;}
 
-function updateSummary(){
-  const title=document.getElementById('title').value||'Your holiday';
-  const loc=document.getElementById('location').value;
-  document.getElementById('summary').textContent=`${title}${loc?' • '+loc:''} — ${items.length} photo${items.length===1?'':'s'}.`;
+  let ctxAudio=null, source=null, dest=null;
+  try{
+    if(audio.src){
+      ctxAudio=new (window.AudioContext||window.webkitAudioContext)();
+      source=ctxAudio.createMediaElementSource(audio);
+      dest=ctxAudio.createMediaStreamDestination();
+      source.connect(dest);source.connect(ctxAudio.destination);
+      dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+      await ctxAudio.resume();
+    }
+  }catch(e){console.log(e);}
+
+  const chunks=[];
+  recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000});
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  const done=new Promise(resolve=>recorder.onstop=resolve);
+  recorder.start(250);
+
+  const total=photos.length*Number(seconds.value);
+  const started=performance.now();
+  let n=0;
+  const tick=()=>{
+    if(n>=photos.length){return;}
+    current=n;show();
+    n++;
+    setTimeout(tick,Number(seconds.value)*1000);
+  };
+  tick();
+  if(audio.src) audio.currentTime=0,audio.play().catch(()=>{});
+
+  await new Promise(resolve=>setTimeout(resolve,total*1000+150));
+  recorder.stop();await done;
+  if(ctxAudio)try{await ctxAudio.close();}catch(e){}
+  if(audio.src)audio.pause();
+
+  const blob=new Blob(chunks,{type:mime});
+  const ext=mime.includes('mp4')?'mp4':'webm';
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='holiday-video.'+ext;a.className='download';a.textContent='⬇️ Save '+ext.toUpperCase()+' Video';
+  area.appendChild(a);
+  status.textContent='Video created. Tap the green button above to save it to your iPhone.';
+  document.getElementById('createVideo').disabled=false;
+  show();
 }
 
-['title','date','location'].forEach(id=>document.getElementById(id).oninput=updateSummary);
+document.getElementById('createVideo').onclick=makeVideo;
 
-saveEdits.onclick=()=>{
-  edits.openingTitle=openingTitle.value.trim();
-  edits.openingInfo=openingInfo.value.trim();
-  edits.closingMessage=closingMessage.value.trim();
-  edits.captions=[...document.querySelectorAll('.photo-caption')].map(el=>el.value.trim());
-  editStatus.textContent='Edits saved. Tap Play to preview the titles and captions.';
-  show();
+document.getElementById('newHoliday').onclick=()=>{
+  stopPreview();photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];current=0;edits.openingTitle='';edits.openingInfo='';edits.closingMessage='';edits.captions=[];
+  document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('location').value='';
+  document.getElementById('openingTitle').value='';document.getElementById('openingInfo').value='';document.getElementById('closingMessage').value='';
+  if(musicUrl)URL.revokeObjectURL(musicUrl);musicUrl=null;audio.removeAttribute('src');musicName.textContent='No music selected.';
+  photoStatus.textContent='Start by adding a photo.';document.getElementById('videoStatus').textContent='Ready.';document.getElementById('downloadArea').innerHTML='';
+  render();
 };
-
-document.getElementById('new').onclick=()=>{
-  stop();
-  items=[]; index=0; edits={openingTitle:'',openingInfo:'',closingMessage:'',captions:[]};
-  photosEl.value=''; musicEl.value=''; audio.removeAttribute('src');
-  thumbs.innerHTML=''; render();
-  document.getElementById('title').value='';
-  document.getElementById('date').value='';
-  document.getElementById('location').value='';
-  openingTitle.value=''; openingInfo.value=''; closingMessage.value='';
-  document.getElementById('musicName').textContent='Then tap Choose File and select your downloaded Suno song.';
-  editStatus.textContent='';
-  updateSummary();
-};
-
 render();
-updateSummary();
 </script>
-
 </body>
 </html>
