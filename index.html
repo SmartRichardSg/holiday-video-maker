@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Holiday Video Maker</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#222}
+.wrap{max-width:720px;margin:auto;padding:20px 16px 40px}.card{background:white;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 12px #0000000d}
+h1{font-size:28px;margin:4px 0 6px}h2{font-size:18px;margin:0 0 12px}.sub{color:#666;margin:0 0 18px}
+label{display:block;font-weight:600;margin:12px 0 6px}input,button{font:inherit}input[type=text],input[type=date],input[type=number]{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font-size:16px}
+input[type=file]{width:100%;padding:12px 0}button{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;background:#222;color:white}
+button.secondary{background:#e9e9ed;color:#222}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.preview{background:#111;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
+.preview img{width:100%;height:100%;object-fit:contain}.empty{color:#aaa;text-align:center;padding:20px}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px}.controls button{flex:1}
+#count{font-weight:700}.thumbs{display:flex;gap:8px;overflow-x:auto;padding-top:10px}.thumbs img{width:70px;height:55px;object-fit:cover;border-radius:8px;opacity:.65}.thumbs img.active{opacity:1;outline:3px solid #222}
+.note{font-size:13px;color:#666;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎬 Holiday Video Maker</h1>
+<p class="sub">A simple way to turn your holiday photos into a slideshow.</p>
+
+<div class="card">
+<h2>1. Holiday details</h2>
+<label>Title</label><input id="title" type="text" placeholder="e.g. Japan Autumn 2026">
+<label>Date</label><input id="date" type="date">
+<label>Location</label><input id="location" type="text" placeholder="e.g. Kyoto, Japan">
+</div>
+
+<div class="card">
+<h2>2. Add photos</h2>
+<input id="photos" type="file" accept="image/*" multiple>
+<p id="count">No photos selected</p>
+<div id="thumbs" class="thumbs"></div>
+</div>
+
+<div class="card">
+<h2>3. Add music (optional)</h2>
+<input id="music" type="file" accept="audio/*">
+<p id="musicName" class="note">You can select a Suno song stored on your iPhone.</p>
+</div>
+
+<div class="card">
+<h2>4. Preview</h2>
+<div class="preview"><img id="previewImg" hidden><div id="empty" class="empty">Add some photos to start your preview.</div></div>
+<div class="controls">
+<button id="play">▶ Play</button><button id="pause" class="secondary">⏸ Pause</button>
+</div>
+<label>Seconds per photo: <span id="durationValue">3</span></label>
+<input id="duration" type="range" min="1" max="8" value="3">
+<p id="slideInfo" class="note"></p>
+</div>
+
+<div class="card">
+<h2>5. Your holiday</h2>
+<p id="summary" class="note">Add photos above. The slideshow stays on your device.</p>
+<button id="new" class="secondary">Start New Holiday</button>
+</div>
+</div>
+
+<audio id="audio" loop></audio>
+<script>
+const photosEl=document.getElementById('photos'),musicEl=document.getElementById('music');
+const img=document.getElementById('previewImg'),empty=document.getElementById('empty');
+const thumbs=document.getElementById('thumbs'),count=document.getElementById('count');
+const play=document.getElementById('play'),pause=document.getElementById('pause');
+const duration=document.getElementById('duration'),durationValue=document.getElementById('durationValue');
+const slideInfo=document.getElementById('slideInfo'),audio=document.getElementById('audio');
+let items=[],index=0,timer=null,playing=false;
+
+function render(){
+ thumbs.innerHTML='';
+ items.forEach((it,i)=>{const t=document.createElement('img');t.src=it.url;t.className=i===index?'active':'';t.onclick=()=>{index=i;show();};thumbs.appendChild(t)});
+ count.textContent=items.length?`${items.length} photo${items.length>1?'s':''} selected`:'No photos selected';
+ show();
+}
+function show(){
+ if(!items.length){img.hidden=true;empty.hidden=false;slideInfo.textContent='';return}
+ img.hidden=false;empty.hidden=true;img.src=items[index].url;
+ [...thumbs.children].forEach((x,i)=>x.className=i===index?'active':'');
+ slideInfo.textContent=`Photo ${index+1} of ${items.length}`;
+}
+function next(){if(!items.length)return;index=(index+1)%items.length;show()}
+function start(){if(!items.length)return;playing=true;play.textContent='⏸ Playing';clearInterval(timer);timer=setInterval(next,+duration.value*1000);audio.play().catch(()=>{});}
+function stop(){playing=false;clearInterval(timer);timer=null;play.textContent='▶ Play';audio.pause()}
+photosEl.onchange=()=>{items=[...photosEl.files].map(f=>({name:f.name,url:URL.createObjectURL(f)}));index=0;render();updateSummary()};
+musicEl.onchange=()=>{const f=musicEl.files[0];if(f){audio.src=URL.createObjectURL(f);document.getElementById('musicName').textContent='Music selected: '+f.name}};
+play.onclick=()=>playing?stop():start();pause.onclick=stop;
+duration.oninput=()=>{durationValue.textContent=duration.value;if(playing)start()};
+function updateSummary(){
+ const title=document.getElementById('title').value||'Your holiday';
+ const loc=document.getElementById('location').value;
+ document.getElementById('summary').textContent=`${title}${loc?' • '+loc:''} — ${items.length} photo${items.length===1?'':'s'}.`;
+}
+['title','date','location'].forEach(id=>document.getElementById(id).oninput=updateSummary);
+document.getElementById('new').onclick=()=>{stop();items=[];index=0;photosEl.value='';musicEl.value='';audio.removeAttribute('src');thumbs.innerHTML='';render();document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('location').value='';document.getElementById('musicName').textContent='You can select a Suno song stored on your iPhone.';updateSummary()};
+render();
+</script>
+</body>
+</html>
