@@ -8,7 +8,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#222}
 .wrap{max-width:720px;margin:auto;padding:20px 16px 40px}.card{background:white;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 12px #0000000d}
 h1{font-size:28px;margin:4px 0 6px}h2{font-size:18px;margin:0 0 12px}.sub{color:#666;margin:0 0 18px}
-label{display:block;font-weight:600;margin:12px 0 6px}input,button{font:inherit}input[type=text],input[type=date],input[type=number]{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font-size:16px}
+label{display:block;font-weight:600;margin:12px 0 6px}input,button{font:inherit}input[type=text],input[type=date],input[type=number],textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font-size:16px}
 input[type=file]{width:100%;padding:12px 0}button{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;background:#222;color:white}
 button.secondary{background:#e9e9ed;color:#222}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
 .preview{background:#111;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
@@ -33,6 +33,7 @@ button.secondary{background:#e9e9ed;color:#222}.row{display:flex;gap:10px;flex-w
 <div class="card">
 <h2>2. Add photos</h2>
 <input id="photos" type="file" accept="image/*" multiple>
+<p class="note">You can add photos in batches. Select more photos later and they will be added to the existing ones.</p>
 <p id="count">No photos selected</p>
 <div id="thumbs" class="thumbs"></div>
 </div>
@@ -72,7 +73,11 @@ style="display:block;text-align:center;text-decoration:none;background:#222;colo
 </div>
 <div class="card">
 <h2>5. Preview</h2>
-<div class="preview"><img id="previewImg" hidden><div id="empty" class="empty">Add some photos to start your preview.</div></div>
+<div class="preview">
+<img id="previewImg" hidden>
+<div id="empty" class="empty">Add some photos to start your preview.</div>
+<div id="textOverlay" style="position:absolute;left:6%;right:6%;bottom:6%;padding:10px 12px;border-radius:12px;background:#0009;color:white;text-align:center;font-weight:700;display:none;white-space:pre-line;"></div>
+</div>
 <div class="controls">
 <button id="play">▶ Play</button><button id="pause" class="secondary">⏸ Pause</button>
 </div>
@@ -82,7 +87,7 @@ style="display:block;text-align:center;text-decoration:none;background:#222;colo
 </div>
 
 <div class="card">
-<h2>5. Your holiday</h2>
+<h2>6. Your holiday</h2>
 <p id="summary" class="note">Add photos above. The slideshow stays on your device.</p>
 <button id="new" class="secondary">Start New Holiday</button>
 </div>
@@ -96,90 +101,150 @@ const thumbs=document.getElementById('thumbs'),count=document.getElementById('co
 const play=document.getElementById('play'),pause=document.getElementById('pause');
 const duration=document.getElementById('duration'),durationValue=document.getElementById('durationValue');
 const slideInfo=document.getElementById('slideInfo'),audio=document.getElementById('audio');
+const textOverlay=document.getElementById('textOverlay');
+const openingTitle=document.getElementById('openingTitle');
+const openingInfo=document.getElementById('openingInfo');
+const closingMessage=document.getElementById('closingMessage');
+const captionList=document.getElementById('captionList');
+const saveEdits=document.getElementById('saveEdits');
+const editStatus=document.getElementById('editStatus');
+
 let items=[],index=0,timer=null,playing=false;
+let edits={openingTitle:'',openingInfo:'',closingMessage:'',captions:[]};
 
 function render(){
- thumbs.innerHTML='';
- items.forEach((it,i)=>{const t=document.createElement('img');t.src=it.url;t.className=i===index?'active':'';t.onclick=()=>{index=i;show();};thumbs.appendChild(t)});
- count.textContent=items.length?`${items.length} photo${items.length>1?'s':''} selected`:'No photos selected';
- show();
-}
-function show(){
- if(!items.length){img.hidden=true;empty.hidden=false;slideInfo.textContent='';return}
- img.hidden=false;empty.hidden=true;img.src=items[index].url;
- [...thumbs.children].forEach((x,i)=>x.className=i===index?'active':'');
- slideInfo.textContent=`Photo ${index+1} of ${items.length}`;
-}
-function next(){if(!items.length)return;index=(index+1)%items.length;show()}
-function start(){if(!items.length)return;playing=true;play.textContent='⏸ Playing';clearInterval(timer);timer=setInterval(next,+duration.value*1000);audio.play().catch(()=>{});}
-function stop(){playing=false;clearInterval(timer);timer=null;play.textContent='▶ Play';audio.pause()}
-photosEl.onchange=()=>{items=[...photosEl.files].map(f=>({name:f.name,url:URL.createObjectURL(f)}));index=0;render();updateSummary()};
-musicEl.onchange=()=>{const f=musicEl.files[0];if(f){audio.src=URL.createObjectURL(f);document.getElementById('musicName').textContent='Music selected: '+f.name}};
-play.onclick=()=>playing?stop():start();pause.onclick=stop;
-duration.oninput=()=>{durationValue.textContent=duration.value;if(playing)start()};
-function updateSummary(){
- const title=document.getElementById('title').value||'Your holiday';
- const loc=document.getElementById('location').value;
- document.getElementById('summary').textContent=`${title}${loc?' • '+loc:''} — ${items.length} photo${items.length===1?'':'s'}.`;
-}
-['title','date','location'].forEach(id=>document.getElementById(id).oninput=updateSummary);
-document.getElementById('new').onclick=()=>{stop();items=[];index=0;photosEl.value='';musicEl.value='';audio.removeAttribute('src');thumbs.innerHTML='';render();document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('location').value='';document.getElementById('musicName').textContent='Then tap Choose File and select your downloaded Suno song.';updateSummary()};
-render();
-</script>
-<script>
-(function(){
-  const openingTitle = document.getElementById('openingTitle');
-  const openingInfo = document.getElementById('openingInfo');
-  const closingMessage = document.getElementById('closingMessage');
-  const captionList = document.getElementById('captionList');
-  const saveEdits = document.getElementById('saveEdits');
-  const editStatus = document.getElementById('editStatus');
-
-  function renderCaptionList() {
-    if (!captionList) return;
-    const photos = window.getHolidayPhotos ? window.getHolidayPhotos() : [];
-    captionList.innerHTML = '';
-    if (!photos.length) {
-      captionList.innerHTML = '<p class="note">Add photos above first.</p>';
-      return;
-    }
-    photos.forEach((photo, i) => {
-      const wrap = document.createElement('div');
-      wrap.style.marginBottom = '10px';
-      wrap.innerHTML =
-        '<label><strong>Photo ' + (i + 1) + '</strong></label>' +
-        '<input type="text" class="photo-caption" data-index="' + i + '" ' +
-        'placeholder="Caption for photo ' + (i + 1) + '">';
-      captionList.appendChild(wrap);
-    });
-  }
-
-  // Make the photo array accessible without changing the existing slideshow logic.
-  const originalUpdate = window.updateSummary;
-  window.updateSummary = function() {
-    if (typeof originalUpdate === 'function') originalUpdate();
-    renderCaptionList();
-  };
-
-  saveEdits && saveEdits.addEventListener('click', function() {
-    const captions = Array.from(document.querySelectorAll('.photo-caption')).map(
-      el => el.value.trim()
-    );
-    window.videoEdits = {
-      openingTitle: openingTitle.value.trim(),
-      openingInfo: openingInfo.value.trim(),
-      closingMessage: closingMessage.value.trim(),
-      captions
-    };
-    editStatus.textContent = 'Edits saved for this holiday. They will be used when video export is added.';
+  thumbs.innerHTML='';
+  items.forEach((it,i)=>{
+    const t=document.createElement('img');
+    t.src=it.url;
+    t.className=i===index?'active':'';
+    t.onclick=()=>{index=i;show();};
+    thumbs.appendChild(t);
   });
-
-  // Initial render and a small delayed refresh for the existing app's photo setup.
+  count.textContent=items.length?`${items.length} photo${items.length>1?'s':''} selected`:'No photos selected';
   renderCaptionList();
-  setTimeout(renderCaptionList, 300);
-  const photoInput = document.getElementById('photos');
-  if (photoInput) photoInput.addEventListener('change', function(){ setTimeout(renderCaptionList, 50); });
-})();
+  show();
+}
+
+function show(){
+  if(!items.length){
+    img.hidden=true; empty.hidden=false; slideInfo.textContent=''; textOverlay.style.display='none'; return;
+  }
+  img.hidden=false; empty.hidden=true; img.src=items[index].url;
+  [...thumbs.children].forEach((x,i)=>x.className=i===index?'active':'');
+  slideInfo.textContent=`Photo ${index+1} of ${items.length}`;
+
+  let text='';
+  if(index===0 && (edits.openingTitle || edits.openingInfo)){
+    text=(edits.openingTitle ? edits.openingTitle : '') +
+      (edits.openingInfo ? '\n' + edits.openingInfo : '');
+  }
+  if(edits.captions[index]) text=edits.captions[index];
+  if(index===items.length-1 && edits.closingMessage){
+    text=(text ? text+'\n\n' : '') + edits.closingMessage;
+  }
+  textOverlay.textContent=text;
+  textOverlay.style.display=text?'block':'none';
+}
+
+function next(){if(!items.length)return;index=(index+1)%items.length;show()}
+function start(){
+  if(!items.length)return;
+  playing=true;play.textContent='⏸ Playing';
+  clearInterval(timer);
+  timer=setInterval(next,+duration.value*1000);
+  audio.play().catch(()=>{});
+}
+function stop(){playing=false;clearInterval(timer);timer=null;play.textContent='▶ Play';audio.pause()}
+
+function renderCaptionList(){
+  captionList.innerHTML='';
+  if(!items.length){
+    captionList.innerHTML='<p class="note">Add photos above first.</p>';
+    return;
+  }
+  items.forEach((photo,i)=>{
+    const wrap=document.createElement('div');
+    wrap.style.marginBottom='10px';
+    const label=document.createElement('label');
+    label.textContent='Photo '+(i+1);
+    const input=document.createElement('input');
+    input.type='text';
+    input.className='photo-caption';
+    input.placeholder='Caption for photo '+(i+1);
+    input.value=edits.captions[i]||'';
+    input.dataset.index=i;
+    input.oninput=()=>{
+      edits.captions[i]=input.value;
+      show();
+    };
+    wrap.appendChild(label);
+    wrap.appendChild(input);
+    captionList.appendChild(wrap);
+  });
+}
+
+photosEl.onchange=()=>{
+  // Append newly selected photos instead of replacing the existing list.
+  const newFiles=[...photosEl.files];
+  newFiles.forEach(f=>{
+    const duplicate=items.some(it=>it.name===f.name && it.size===f.size);
+    if(!duplicate) items.push({name:f.name,size:f.size,url:URL.createObjectURL(f)});
+  });
+  photosEl.value='';
+  if(index>=items.length) index=0;
+  render();
+  updateSummary();
+};
+
+musicEl.onchange=()=>{
+  const f=musicEl.files[0];
+  if(f){
+    audio.src=URL.createObjectURL(f);
+    document.getElementById('musicName').textContent='Music selected: '+f.name;
+  }
+};
+
+play.onclick=()=>playing?stop():start();
+pause.onclick=stop;
+duration.oninput=()=>{
+  durationValue.textContent=duration.value;
+  if(playing)start();
+};
+
+function updateSummary(){
+  const title=document.getElementById('title').value||'Your holiday';
+  const loc=document.getElementById('location').value;
+  document.getElementById('summary').textContent=`${title}${loc?' • '+loc:''} — ${items.length} photo${items.length===1?'':'s'}.`;
+}
+
+['title','date','location'].forEach(id=>document.getElementById(id).oninput=updateSummary);
+
+saveEdits.onclick=()=>{
+  edits.openingTitle=openingTitle.value.trim();
+  edits.openingInfo=openingInfo.value.trim();
+  edits.closingMessage=closingMessage.value.trim();
+  edits.captions=[...document.querySelectorAll('.photo-caption')].map(el=>el.value.trim());
+  editStatus.textContent='Edits saved. Tap Play to preview the titles and captions.';
+  show();
+};
+
+document.getElementById('new').onclick=()=>{
+  stop();
+  items=[]; index=0; edits={openingTitle:'',openingInfo:'',closingMessage:'',captions:[]};
+  photosEl.value=''; musicEl.value=''; audio.removeAttribute('src');
+  thumbs.innerHTML=''; render();
+  document.getElementById('title').value='';
+  document.getElementById('date').value='';
+  document.getElementById('location').value='';
+  openingTitle.value=''; openingInfo.value=''; closingMessage.value='';
+  document.getElementById('musicName').textContent='Then tap Choose File and select your downloaded Suno song.';
+  editStatus.textContent='';
+  updateSummary();
+};
+
+render();
+updateSummary();
 </script>
 
 </body>
