@@ -39,8 +39,13 @@ button.secondary{background:#e9e9ed;color:#222}.row{display:flex;gap:10px;flex-w
 
 <div class="card">
 <h2>3. Add music (optional)</h2>
+<a href="https://suno.com/create" target="_blank" rel="noopener"
+style="display:block;text-align:center;text-decoration:none;background:#222;color:white;border-radius:14px;padding:14px 16px;font-weight:700;margin-bottom:12px;">
+🎵 Create Music with Suno
+</a>
+<p class="note">Tap the button above to open Suno, create your holiday song, download it to your iPhone, then return here.</p>
 <input id="music" type="file" accept="audio/*">
-<p id="musicName" class="note">You can select a Suno song stored on your iPhone.</p>
+<p id="musicName" class="note">Then tap Choose File and select your downloaded Suno song.</p>
 </div>
 
 <div class="card">
@@ -96,7 +101,7 @@ function updateSummary(){
  document.getElementById('summary').textContent=`${title}${loc?' • '+loc:''} — ${items.length} photo${items.length===1?'':'s'}.`;
 }
 ['title','date','location'].forEach(id=>document.getElementById(id).oninput=updateSummary);
-document.getElementById('new').onclick=()=>{stop();items=[];index=0;photosEl.value='';musicEl.value='';audio.removeAttribute('src');thumbs.innerHTML='';render();document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('location').value='';document.getElementById('musicName').textContent='You can select a Suno song stored on your iPhone.';updateSummary()};
+document.getElementById('new').onclick=()=>{stop();items=[];index=0;photosEl.value='';musicEl.value='';audio.removeAttribute('src');thumbs.innerHTML='';render();document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('location').value='';document.getElementById('musicName').textContent='Then tap Choose File and select your downloaded Suno song.';updateSummary()};
 render();
 </script>
 </body>
